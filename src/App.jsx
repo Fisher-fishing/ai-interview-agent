@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useInterviewHistory } from "./hooks/useInterviewHistory";
+import { useAuth } from "./context/AuthContext";
 
 const QUESTION_BANK = {
   frontend: [
@@ -19,6 +21,7 @@ const ROLE_NAMES = {
 };
 
 export default function App() {
+  const { user, logout } = useAuth();
   const [role, setRole] = useState("frontend");
   const [interviewType, setInterviewType] = useState("技术面试");
   const [started, setStarted] = useState(false);
@@ -27,6 +30,8 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [answers, setAnswers] = useState([]);
   const [error, setError] = useState("");
+  const { history, addHistory, clearHistory } =
+  useInterviewHistory();
 
   const questions = useMemo(() => QUESTION_BANK[role], [role]);
   const currentQuestion = questions[currentIndex];
@@ -62,10 +67,15 @@ export default function App() {
     setError("");
 
     if (currentIndex === questions.length - 1) {
-      setCompleted(true);
-      return;
-    }
+    addHistory({
+        role: ROLE_NAMES[role],
+        interviewType,
+        answers: nextAnswers,
+    });
 
+    setCompleted(true);
+    return;
+    }
     setCurrentIndex((index) => index + 1);
     setAnswer("");
   }
@@ -82,11 +92,21 @@ export default function App() {
   return (
     <div className="app">
       <header className="site-header">
-        <a className="brand" href="/" aria-label="返回首页">
-          Interview Agent
-        </a>
+        <div className="brand-group">
+            <a className="brand" href="/" aria-label="返回首页">
+            Interview Agent
+            </a>
 
-        <span className="project-label">个人练习项目</span>
+            <span className="project-label">个人练习项目</span>
+        </div>
+
+        <div className="account-actions">
+            <span>{user.email}</span>
+
+            <button type="button" onClick={logout}>
+            退出登录
+            </button>
+        </div>
       </header>
 
       <main className="page">
@@ -225,6 +245,51 @@ export default function App() {
             )}
           </section>
         </section>
+        <section className="panel history-panel">
+            <div className="history-header">
+                <div>
+                <p className="section-number">04</p>
+                <h2>练习记录</h2>
+                </div>
+
+                {history.length > 0 && (
+                <button
+                    className="clear-history-button"
+                    type="button"
+                    onClick={clearHistory}
+                >
+                    清空记录
+                </button>
+                )}
+            </div>
+
+            {history.length === 0 ? (
+                <p className="history-empty">
+                完成一次模拟面试后，记录会保存在当前浏览器中。
+                </p>
+            ) : (
+                <div className="history-list">
+                {history.map((record) => (
+                    <article className="history-item" key={record.id}>
+                    <div>
+                        <h3>{record.role}</h3>
+                        <p>{record.interviewType}</p>
+                    </div>
+
+                    <div className="history-meta">
+                        <strong>{record.answers.length} 道题</strong>
+                        <time dateTime={record.createdAt}>
+                        {new Intl.DateTimeFormat("zh-CN", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                        }).format(new Date(record.createdAt))}
+                        </time>
+                    </div>
+                    </article>
+                ))}
+                </div>
+            )}
+            </section>
       </main>
 
       <footer className="site-footer">

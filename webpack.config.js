@@ -41,6 +41,12 @@ module.exports = (_, argv) => ({
     hot: true,
     open: true,
     historyApiFallback: true,
+    proxy: [
+      {
+          context: ["/api"],
+          target: "http://localhost:3001",
+      },
+    ],
   },
 
   devtool: argv.mode === "production" ? "source-map" : "eval-source-map",
