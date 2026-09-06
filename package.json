@@ -6,7 +6,8 @@
     "start": "concurrently -k npm:server npm:client",
     "build": "webpack --mode production",
     "client": "webpack serve --mode development",
-    "server": "nodemon server/index.js"
+    "server": "nodemon server/index.js",
+    "db:seed": "node server/scripts/seedQuestions.js"
   },
   "repository": {
     "type": "git",
