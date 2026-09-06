@@ -1,35 +1,31 @@
-const path = require("node:path");
-const Database = require("better-sqlite3");
+const mysql = require("mysql2/promise");
 
-const databasePath = path.join(__dirname, "data", "app.db");
-const database = new Database(databasePath);
+const requiredEnvironmentVariables = [
+  "DB_HOST",
+  "DB_PORT",
+  "DB_USER",
+  "DB_PASSWORD",
+  "DB_NAME",
+];
 
-database.pragma("journal_mode = WAL");
-database.pragma("foreign_keys = ON");
+for (const variableName of requiredEnvironmentVariables) {
+  if (!process.env[variableName]) {
+    throw new Error(
+      `缺少环境变量：${variableName}`,
+    );
+  }
+}
 
-database.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    password_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-  );
-
-  CREATE TABLE IF NOT EXISTS sessions (
-    token_hash TEXT PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL,
-    created_at INTEGER NOT NULL,
-    FOREIGN KEY (user_id)
-      REFERENCES users(id)
-      ON DELETE CASCADE
-  );
-
-  CREATE INDEX IF NOT EXISTS sessions_user_id_index
-    ON sessions(user_id);
-
-  CREATE INDEX IF NOT EXISTS sessions_expires_at_index
-    ON sessions(expires_at);
-`);
+const database = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  charset: "utf8mb4",
+});
 
 module.exports = database;

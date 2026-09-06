@@ -523,6 +523,20 @@ form .primary-button {
   }
 }
 
+.primary-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.history-status {
+  margin: 24px 0 0;
+  color: #69788b;
+}
+
+.history-status-error {
+  color: #a42f2f;
+}
+
 @media (max-width: 800px) {
   .page {
     width: min(100% - 28px, 680px);

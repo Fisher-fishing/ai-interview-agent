@@ -30,8 +30,16 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [answers, setAnswers] = useState([]);
   const [error, setError] = useState("");
-  const { history, addHistory, clearHistory } =
-  useInterviewHistory();
+
+  const {
+    history,
+    historyLoading,
+    historyError,
+    addHistory,
+    clearHistory,
+  } = useInterviewHistory();
+
+  const [saving, setSaving] = useState(false);
 
   const questions = useMemo(() => QUESTION_BANK[role], [role]);
   const currentQuestion = questions[currentIndex];
@@ -45,40 +53,52 @@ export default function App() {
     setError("");
   }
 
-  function submitAnswer(event) {
-    event.preventDefault();
+async function submitAnswer(event) {
+  event.preventDefault();
 
-    const normalizedAnswer = answer.trim();
+  const normalizedAnswer = answer.trim();
 
-    if (!normalizedAnswer) {
-      setError("请先填写你的回答。");
-      return;
-    }
+  if (!normalizedAnswer) {
+    setError("请先填写你的回答。");
+    return;
+  }
 
-    const nextAnswers = [
-      ...answers,
-      {
-        question: currentQuestion,
-        answer: normalizedAnswer,
-      },
-    ];
+  const nextAnswers = [
+    ...answers,
+    {
+      question: currentQuestion,
+      answer: normalizedAnswer,
+    },
+  ];
 
-    setAnswers(nextAnswers);
-    setError("");
+  setError("");
 
-    if (currentIndex === questions.length - 1) {
-    addHistory({
+  if (currentIndex === questions.length - 1) {
+    setSaving(true);
+
+    try {
+      await addHistory({
         role: ROLE_NAMES[role],
         interviewType,
         answers: nextAnswers,
-    });
+      });
 
-    setCompleted(true);
-    return;
+      setAnswers(nextAnswers);
+      setCompleted(true);
+      setAnswer("");
+    } catch {
+      setError("保存面试记录失败，请稍后重试。");
+    } finally {
+      setSaving(false);
     }
-    setCurrentIndex((index) => index + 1);
-    setAnswer("");
+
+    return;
   }
+
+  setAnswers(nextAnswers);
+  setCurrentIndex((index) => index + 1);
+  setAnswer("");
+}
 
   function resetInterview() {
     setStarted(false);
@@ -211,8 +231,14 @@ export default function App() {
 
                 {error && <p className="error-message">{error}</p>}
 
-                <button className="primary-button" type="submit">
-                  {currentIndex === questions.length - 1
+                <button
+                className="primary-button"
+                type="submit"
+                disabled={saving}
+                >
+                {saving
+                    ? "正在保存……"
+                    : currentIndex === questions.length - 1
                     ? "完成练习"
                     : "保存并进入下一题"}
                 </button>
@@ -223,10 +249,10 @@ export default function App() {
               <div className="result">
                 <p className="section-number">03</p>
                 <h2>本次练习已完成</h2>
-                <p>
-                  已记录 {answers.length} 道题的回答。当前版本仅保存本次页面状态，
-                  尚未接入 AI 评分。
-                </p>
+                    <p>
+                    已将 {answers.length} 道题的回答保存到当前账号。
+                    当前版本尚未接入 AI 评分。
+                    </p>
 
                 <div className="answer-list">
                   {answers.map((item, index) => (
@@ -246,50 +272,66 @@ export default function App() {
           </section>
         </section>
         <section className="panel history-panel">
-            <div className="history-header">
-                <div>
-                <p className="section-number">04</p>
-                <h2>练习记录</h2>
-                </div>
-
-                {history.length > 0 && (
-                <button
-                    className="clear-history-button"
-                    type="button"
-                    onClick={clearHistory}
-                >
-                    清空记录
-                </button>
-                )}
+        <div className="history-header">
+            <div>
+            <p className="section-number">04</p>
+            <h2>练习记录</h2>
             </div>
 
-            {history.length === 0 ? (
-                <p className="history-empty">
-                完成一次模拟面试后，记录会保存在当前浏览器中。
-                </p>
-            ) : (
-                <div className="history-list">
-                {history.map((record) => (
-                    <article className="history-item" key={record.id}>
-                    <div>
-                        <h3>{record.role}</h3>
-                        <p>{record.interviewType}</p>
-                    </div>
-
-                    <div className="history-meta">
-                        <strong>{record.answers.length} 道题</strong>
-                        <time dateTime={record.createdAt}>
-                        {new Intl.DateTimeFormat("zh-CN", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                        }).format(new Date(record.createdAt))}
-                        </time>
-                    </div>
-                    </article>
-                ))}
-                </div>
+            {history.length > 0 && (
+            <button
+                className="clear-history-button"
+                type="button"
+                onClick={clearHistory}
+            >
+                清空记录
+            </button>
             )}
-            </section>
+        </div>
+
+        {historyLoading ? (
+            <p className="history-status">
+            正在加载练习记录……
+            </p>
+        ) : historyError ? (
+            <p className="history-status history-status-error">
+            {historyError}
+            </p>
+        ) : history.length === 0 ? (
+            <p className="history-empty">
+            完成一次模拟面试后，记录会保存到当前账号。
+            </p>
+        ) : (
+            <div className="history-list">
+            {history.map((record) => (
+                <article
+                className="history-item"
+                key={record.id}
+                >
+                <div>
+                    <h3>{record.role}</h3>
+                    <p>{record.interviewType}</p>
+                </div>
+
+                <div className="history-meta">
+                    <strong>
+                    {record.answerCount} 道题
+                    </strong>
+
+                    <time dateTime={record.createdAt}>
+                    {new Intl.DateTimeFormat("zh-CN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                    }).format(
+                        new Date(Number(record.createdAt)),
+                    )}
+                    </time>
+                </div>
+                </article>
+            ))}
+            </div>
+        )}
+        </section>
       </main>
 
       <footer className="site-footer">

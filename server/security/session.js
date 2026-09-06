@@ -35,22 +35,23 @@ function getCookieOptions() {
   };
 }
 
-function removeExpiredSessions() {
-  database
-    .prepare("DELETE FROM sessions WHERE expires_at <= ?")
-    .run(Date.now());
+async function removeExpiredSessions() {
+  await database.execute(
+    "DELETE FROM sessions WHERE expires_at <= ?",
+    [Date.now()],
+  );
 }
 
-function createSession(userId) {
-  removeExpiredSessions();
+async function createSession(userId) {
+  await removeExpiredSessions();
 
   const token = randomBytes(32).toString("base64url");
   const tokenHash = hashToken(token);
   const createdAt = Date.now();
   const expiresAt = createdAt + SESSION_DURATION;
 
-  database
-    .prepare(`
+  await database.execute(
+    `
       INSERT INTO sessions (
         token_hash,
         user_id,
@@ -58,21 +59,22 @@ function createSession(userId) {
         created_at
       )
       VALUES (?, ?, ?, ?)
-    `)
-    .run(tokenHash, userId, expiresAt, createdAt);
+    `,
+    [tokenHash, userId, expiresAt, createdAt],
+  );
 
   return token;
 }
 
-function getUserFromSession(token) {
+async function getUserFromSession(token) {
   if (!token) {
     return null;
   }
 
   const tokenHash = hashToken(token);
 
-  const session = database
-    .prepare(`
+  const [rows] = await database.execute(
+    `
       SELECT
         users.id,
         users.email,
@@ -82,17 +84,21 @@ function getUserFromSession(token) {
       INNER JOIN users
         ON users.id = sessions.user_id
       WHERE sessions.token_hash = ?
-    `)
-    .get(tokenHash);
+    `,
+    [tokenHash],
+  );
+
+  const session = rows[0];
 
   if (!session) {
     return null;
   }
 
-  if (session.expiresAt <= Date.now()) {
-    database
-      .prepare("DELETE FROM sessions WHERE token_hash = ?")
-      .run(tokenHash);
+  if (Number(session.expiresAt) <= Date.now()) {
+    await database.execute(
+      "DELETE FROM sessions WHERE token_hash = ?",
+      [tokenHash],
+    );
 
     return null;
   }
@@ -104,14 +110,15 @@ function getUserFromSession(token) {
   };
 }
 
-function deleteSession(token) {
+async function deleteSession(token) {
   if (!token) {
     return;
   }
 
-  database
-    .prepare("DELETE FROM sessions WHERE token_hash = ?")
-    .run(hashToken(token));
+  await database.execute(
+    "DELETE FROM sessions WHERE token_hash = ?",
+    [hashToken(token)],
+  );
 }
 
 function setSessionCookie(response, token) {
@@ -122,13 +129,20 @@ function setSessionCookie(response, token) {
 }
 
 function clearSessionCookie(response) {
-  response.clearCookie(COOKIE_NAME, getCookieOptions());
+  response.clearCookie(
+    COOKIE_NAME,
+    getCookieOptions(),
+  );
 }
 
-function requireAuthentication(request, response, next) {
+async function requireAuthentication(
+  request,
+  response,
+  next,
+) {
   try {
     const token = request.cookies[COOKIE_NAME];
-    const user = getUserFromSession(token);
+    const user = await getUserFromSession(token);
 
     if (!user) {
       return response.status(401).json({

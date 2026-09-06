@@ -1,48 +1,77 @@
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
-const STORAGE_KEY = "ai-interview-agent-history";
-
-function readHistory() {
-  try {
-    const savedHistory = localStorage.getItem(STORAGE_KEY);
-    const parsedHistory = savedHistory ? JSON.parse(savedHistory) : [];
-
-    return Array.isArray(parsedHistory) ? parsedHistory : [];
-  } catch {
-    return [];
-  }
-}
+import {
+  clearInterviews,
+  createInterview,
+  getInterviews,
+} from "../services/interviewApi";
 
 export function useInterviewHistory() {
-  const [history, setHistory] = useState(readHistory);
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] =
+    useState(true);
+  const [historyError, setHistoryError] =
+    useState("");
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    setHistoryError("");
+
+    try {
+      const data = await getInterviews();
+      setHistory(data.interviews);
+    } catch (error) {
+      setHistoryError(error.message);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-  }, [history]);
+    loadHistory();
+  }, [loadHistory]);
 
-  function addHistory(record) {
-    const id =
-      globalThis.crypto?.randomUUID?.() ?? String(Date.now());
+  async function addHistory(record) {
+    setHistoryError("");
 
-    setHistory((currentHistory) =>
-      [
-        {
-          ...record,
-          id,
-          createdAt: new Date().toISOString(),
-        },
-        ...currentHistory,
-      ].slice(0, 10),
-    );
+    try {
+      const data = await createInterview(record);
+
+      setHistory((currentHistory) =>
+        [
+          data.interview,
+          ...currentHistory,
+        ].slice(0, 20),
+      );
+
+      return data.interview;
+    } catch (error) {
+      setHistoryError(error.message);
+      throw error;
+    }
   }
 
-  function clearHistory() {
-    setHistory([]);
+  async function clearHistory() {
+    setHistoryError("");
+
+    try {
+      await clearInterviews();
+      setHistory([]);
+    } catch (error) {
+      setHistoryError(error.message);
+    }
   }
 
   return {
     history,
+    historyLoading,
+    historyError,
     addHistory,
     clearHistory,
+    loadHistory,
   };
 }
