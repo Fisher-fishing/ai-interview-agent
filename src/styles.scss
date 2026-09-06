@@ -1,0 +1,319 @@
+:root {
+  color: #172033;
+  background: #eef5fb;
+  font-family:
+    Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 0 6vw;
+  background: #ffffff;
+  border-bottom: 1px solid #dce6ef;
+}
+
+.brand {
+  color: #172033;
+  font-size: 20px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.project-label {
+  padding: 7px 12px;
+  color: #245f93;
+  background: #e7f2fc;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.page {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 72px 0;
+}
+
+.hero {
+  max-width: 780px;
+  margin-bottom: 46px;
+}
+
+.eyebrow,
+.section-number {
+  margin: 0 0 12px;
+  color: #3379b8;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.hero h1 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+
+.hero-description {
+  max-width: 680px;
+  margin: 24px 0 0;
+  color: #5c6b7d;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.6fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.panel {
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #dce6ef;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(34, 70, 105, 0.08);
+}
+
+.configuration-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 25px;
+}
+
+.section-description,
+.question-meta,
+.result > p {
+  color: #69788b;
+  line-height: 1.7;
+}
+
+label {
+  display: grid;
+  gap: 9px;
+  color: #324157;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+select,
+textarea {
+  width: 100%;
+  color: #172033;
+  background: #f8fbfe;
+  border: 1px solid #cbd8e4;
+  border-radius: 12px;
+  outline: none;
+}
+
+select {
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+textarea {
+  min-height: 190px;
+  padding: 15px;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+select:focus,
+textarea:focus {
+  border-color: #347dbb;
+  box-shadow: 0 0 0 3px rgba(52, 125, 187, 0.14);
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.primary-button {
+  color: #ffffff;
+  background: #236da8;
+  border: 1px solid #236da8;
+}
+
+.primary-button:hover {
+  background: #175a90;
+}
+
+.secondary-button {
+  color: #245f93;
+  background: #ffffff;
+  border: 1px solid #a9c3d9;
+}
+
+.interview-panel {
+  min-height: 480px;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 415px;
+  place-content: center;
+  text-align: center;
+}
+
+.empty-state-icon {
+  color: #347dbb;
+  font-size: 42px;
+}
+
+.empty-state h2 {
+  margin-top: 18px;
+}
+
+.empty-state p {
+  max-width: 460px;
+  color: #69788b;
+  line-height: 1.8;
+}
+
+.question-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.question-meta {
+  margin: 0;
+}
+
+.progress {
+  padding: 8px 12px;
+  color: #245f93;
+  background: #eaf4fc;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.question {
+  margin: 34px 0 28px;
+  line-height: 1.5;
+}
+
+.error-message {
+  margin: 10px 0 0;
+  color: #bb3030;
+  font-size: 14px;
+}
+
+form .primary-button {
+  margin-top: 22px;
+}
+
+.answer-list {
+  display: grid;
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.answer-item {
+  padding: 20px;
+  background: #f5f9fc;
+  border: 1px solid #dce6ef;
+  border-radius: 14px;
+}
+
+.answer-item span {
+  color: #3379b8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.answer-item h3 {
+  margin: 9px 0;
+  line-height: 1.5;
+}
+
+.answer-item p {
+  margin: 0;
+  color: #536277;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 26px 6vw;
+  color: #6b7a8d;
+  background: #ffffff;
+  border-top: 1px solid #dce6ef;
+  font-size: 13px;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .page {
+    width: min(100% - 28px, 680px);
+    padding: 48px 0;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .interview-panel {
+    min-height: 400px;
+  }
+
+  .site-footer {
+    flex-direction: column;
+  }
+}
