@@ -537,6 +537,54 @@ form .primary-button {
   color: #a42f2f;
 }
 
+.role-description {
+  margin: -10px 0 0;
+  padding: 12px 14px;
+  color: #586b80;
+  background: #f4f8fc;
+  border-left: 3px solid #5b91bc;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.configuration-error {
+  display: grid;
+  gap: 12px;
+
+  p {
+    margin: 0;
+    color: #a42f2f;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .secondary-button {
+    width: 100%;
+  }
+}
+
+.question-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+
+  span {
+    padding: 6px 10px;
+    color: #245f93;
+    background: #eaf4fc;
+    border: 1px solid #d3e7f6;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+}
+
+.question-tags + .question {
+  margin-top: 16px;
+}
+
 @media (max-width: 800px) {
   .page {
     width: min(100% - 28px, 680px);

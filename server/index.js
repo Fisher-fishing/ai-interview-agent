@@ -8,6 +8,7 @@ require("./database");
 
 const authenticationRoutes = require("./routes/auth");
 const interviewRoutes = require("./routes/interviews");
+const questionRoutes = require("./routes/questions");
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
@@ -38,6 +39,7 @@ app.get("/api/health", (_request, response) => {
 
 app.use("/api/auth", authenticationRoutes);
 app.use("/api/interviews", interviewRoutes);
+app.use("/api/questions", questionRoutes);
 
 app.use("/api", (_request, response) => {
   response.status(404).json({
