@@ -1,0 +1,51 @@
+{
+  "name": "ai-interview-agent",
+  "version": "1.0.0",
+  "description": "AI 面试 Agent（个人练习项目）",
+  "scripts": {
+    "start": "concurrently -k npm:server npm:client",
+    "build": "webpack --mode production",
+    "client": "webpack serve --mode development",
+    "server": "nodemon server/index.js",
+    "db:seed": "node server/scripts/seedQuestions.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fisher-fishing/ai-interview-agent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Fisher-fishing/ai-interview-agent/issues"
+  },
+  "homepage": "https://github.com/Fisher-fishing/ai-interview-agent#readme",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "mysql2": "^3.24.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
+    "@babel/preset-react": "^8.0.1",
+    "babel-loader": "^10.1.1",
+    "concurrently": "^10.0.5",
+    "css-loader": "^7.1.5",
+    "html-webpack-plugin": "^5.6.8",
+    "nodemon": "^3.1.14",
+    "sass": "^1.104.0",
+    "sass-loader": "^17.0.1",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.110.3",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.0.0"
+  },
+  "private": true
+}
