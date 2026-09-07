@@ -4,7 +4,12 @@ import {
   useState,
 } from "react";
 
+import {
+  InterviewHistory,
+} from "./components/InterviewHistory";
+
 import { useAuth } from "./context/AuthContext";
+import { CustomSelect } from "./components/CustomSelect";
 import { useInterviewHistory } from "./hooks/useInterviewHistory";
 import { useQuestionBank } from "./hooks/useQuestionBank";
 
@@ -13,6 +18,11 @@ const INTERVIEW_TYPES = [
   "项目面试",
   "综合面试",
 ];
+
+const INTERVIEW_TYPE_OPTIONS = INTERVIEW_TYPES.map((type) => ({
+  value: type,
+  label: type,
+}));
 
 export default function App() {
   const { user, logout } = useAuth();
@@ -59,6 +69,15 @@ export default function App() {
       roles.find((item) => item.roleKey === role) ??
       null,
     [role, roles],
+  );
+
+  const roleOptions = useMemo(
+    () =>
+      roles.map((item) => ({
+        value: item.roleKey,
+        label: `${item.displayName}（${item.questionCount}题）`,
+      })),
+    [roles],
   );
 
   const currentQuestion = questions[currentIndex];
@@ -211,35 +230,22 @@ export default function App() {
               </p>
             </div>
 
-            <label>
-              目标岗位
-
-              <select
-                value={role}
-                disabled={started || rolesLoading}
-                onChange={(event) => {
-                  setRole(event.target.value);
-                  setError("");
-                }}
-              >
-                {rolesLoading && (
-                  <option value="">正在加载岗位……</option>
-                )}
-
-                {!rolesLoading && roles.length === 0 && (
-                  <option value="">暂无可用岗位</option>
-                )}
-
-                {roles.map((item) => (
-                  <option
-                    value={item.roleKey}
-                    key={item.roleKey}
-                  >
-                    {item.displayName}（{item.questionCount}题）
-                  </option>
-                ))}
-              </select>
-            </label>
+            <CustomSelect
+              id="role-select"
+              label="目标岗位"
+              value={role}
+              options={roleOptions}
+              placeholder={
+                rolesLoading
+                  ? "正在加载岗位……"
+                  : "暂无可用岗位"
+              }
+              disabled={started || rolesLoading}
+              onChange={(nextRole) => {
+                setRole(nextRole);
+                setError("");
+              }}
+            />
 
             {selectedRole && (
               <p className="role-description">
@@ -261,24 +267,17 @@ export default function App() {
               </div>
             )}
 
-            <label>
-              面试类型
-
-              <select
-                value={interviewType}
-                disabled={started}
-                onChange={(event) => {
-                  setInterviewType(event.target.value);
-                  setError("");
-                }}
-              >
-                {INTERVIEW_TYPES.map((type) => (
-                  <option value={type} key={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <CustomSelect
+              id="interview-type-select"
+              label="面试类型"
+              value={interviewType}
+              options={INTERVIEW_TYPE_OPTIONS}
+              disabled={started}
+              onChange={(nextInterviewType) => {
+                setInterviewType(nextInterviewType);
+                setError("");
+              }}
+            />
 
             {!started && (
               <button
@@ -426,72 +425,12 @@ export default function App() {
           </section>
         </section>
 
-        <section className="panel history-panel">
-          <div className="history-header">
-            <div>
-              <p className="section-number">04</p>
-              <h2>练习记录</h2>
-            </div>
-
-            {history.length > 0 && (
-              <button
-                className="clear-history-button"
-                type="button"
-                onClick={clearHistory}
-              >
-                清空记录
-              </button>
-            )}
-          </div>
-
-          {historyLoading ? (
-            <p className="history-status">
-              正在加载练习记录……
-            </p>
-          ) : historyError ? (
-            <p className="history-status history-status-error">
-              {historyError}
-            </p>
-          ) : history.length === 0 ? (
-            <p className="history-empty">
-              完成一次模拟面试后，记录会保存到当前账号。
-            </p>
-          ) : (
-            <div className="history-list">
-              {history.map((record) => (
-                <article
-                  className="history-item"
-                  key={record.id}
-                >
-                  <div>
-                    <h3>{record.role}</h3>
-                    <p>{record.interviewType}</p>
-                  </div>
-
-                  <div className="history-meta">
-                    <strong>
-                      {record.answerCount} 道题
-                    </strong>
-
-                    <time dateTime={record.createdAt}>
-                      {new Intl.DateTimeFormat(
-                        "zh-CN",
-                        {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        },
-                      ).format(
-                        new Date(
-                          Number(record.createdAt),
-                        ),
-                      )}
-                    </time>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+        <InterviewHistory
+          history={history}
+          historyLoading={historyLoading}
+          historyError={historyError}
+          clearHistory={clearHistory}
+        />
       </main>
 
       <footer className="site-footer">
